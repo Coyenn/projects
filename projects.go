@@ -19,19 +19,19 @@ type projectsFinder struct {
 	projects  []project
 }
 
-func (r *projectsFinder) findProjects() {
-	files, err := ioutil.ReadDir("./")
+func (r *projectsFinder) findProjects(location string) {
+	files, err := ioutil.ReadDir(location)
     if err != nil {
         log.Fatal(err)
     }
 
     for _, f := range files {
-		if _, err := ioutil.ReadDir(f.Name() + "/.git"); err == nil {
+		if _, err := ioutil.ReadDir(location + f.Name() + "/.git"); err == nil {
 			description := "No description"
 
-			if _, err := ioutil.ReadFile(f.Name() + "/README.md"); err == nil {
+			if _, err := ioutil.ReadFile(location + f.Name() + "/README.md"); err == nil {
 				// read first line of README.md
-				stdout, stderr := exec.Command("head", "-n", "1", f.Name() + "/README.md").CombinedOutput()
+				stdout, stderr := exec.Command("head", "-n", "1", location + f.Name() + "/README.md").CombinedOutput()
 
 				if stderr != nil {
 					log.Fatal(stderr)
@@ -39,7 +39,7 @@ func (r *projectsFinder) findProjects() {
 
 				// Replace # with space
 				description = string(stdout)
-				description = description[1:len(description)-1]
+				description = description[1:]
 			}
 
 			r.projects = append(r.projects, project{

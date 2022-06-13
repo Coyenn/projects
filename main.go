@@ -65,15 +65,25 @@ type model struct {
 	delegateKeys     *delegateKeyMap
 }
 
-func newModel() model {
+func newModel(args []string) model {
 	var (
 		projectsFinder projectsFinder
 		delegateKeys   = newDelegateKeyMap()
 		listKeys       = newListKeyMap()
 	)
 
+	location := "./"
+
+	if len(args) > 0 {
+		location = args[0]
+
+		if location[len(location)-1] != '/' {
+			location += "/"
+		}
+	}
+
 	// Make initial list of projects
-	projectsFinder.findProjects()
+	projectsFinder.findProjects(location)
 	numItems := len(projectsFinder.projects)
 	items := make([]list.Item, numItems)
 
@@ -158,8 +168,9 @@ func (m model) View() string {
 
 func main() {
 	rand.Seed(time.Now().UTC().UnixNano())
+	args := os.Args[1:]
 
-	if err := tea.NewProgram(newModel()).Start(); err != nil {
+	if err := tea.NewProgram(newModel(args)).Start(); err != nil {
 		fmt.Println("Error running program:", err)
 		os.Exit(1)
 	}
